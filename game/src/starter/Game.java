@@ -35,14 +35,11 @@ import ecs.entities.QuestButton;
 import ecs.entities.SpeedPotion;
 import ecs.entities.SummoningTrap;
 import ecs.entities.TeleportationTrap;
+import graphic.hud.*;
 import saving.GameData;
 import saving.Saves;
 import graphic.DungeonCamera;
 import graphic.Painter;
-import graphic.hud.GameOverMenu;
-import graphic.hud.PauseMenu;
-import graphic.hud.QuestLogMenu;
-import graphic.hud.QuestMenu;
 
 import java.io.IOException;
 import java.util.*;
@@ -99,6 +96,8 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static ILevel currentLevel;
     private static PauseMenu<Actor> pauseMenu;
     private static GameOverMenu<Actor> gameOverMenu;
+    private static InputMenu<Actor> inputMenu;
+    private static OutputMenu<Actor> outputMenu;
     private static Entity hero;
     private Logger gameLogger;
     private static int level = 0;
@@ -183,6 +182,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         gameOverMenu = new GameOverMenu(this);
         controller.add(gameOverMenu);
         hero = new Hero();
+        outputMenu = new OutputMenu<>();
+        controller.add(outputMenu);
+        inputMenu = new InputMenu<>();
+        controller.add(inputMenu);
         levelAPI = new LevelAPI(batch, painter, new WallGenerator(new RandomWalkGenerator()), this);
         levelAPI.loadLevel(LEVELSIZE);
         createSystems();
@@ -310,6 +313,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
+    public static void toggleInput(){
+
+    }
+
     /** Toggle between questLog and run */
     public static void toggleQuestLog() {
         inQuestLog = !inQuestLog;
@@ -429,6 +436,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         new SkillSystem();
         new ProjectileSystem();
         new QuestSystem();
+        new DialogSystem();
     }
 
     /** returns current level of the dungeon */
