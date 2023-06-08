@@ -314,13 +314,16 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
-    public static void toggleInput() {
+    public void toggleInput() {
         isInInputMenu = !isInInputMenu;
         if (systems != null) {
             systems.forEach(ECS_System::toggleRun);
         }
         if (inputMenu != null) {
             if (isInInputMenu) {
+                controller.remove(inputMenu);
+                inputMenu = new InputMenu<>();
+                controller.add(inputMenu);
                 inputMenu.showMenu();
             }
             else {
