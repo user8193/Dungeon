@@ -18,23 +18,9 @@ import ecs.components.PositionComponent;
 import ecs.components.quests.QuestComponent;
 import ecs.damage.Damage;
 import ecs.damage.DamageType;
-import ecs.entities.Entity;
-import ecs.entities.Hero;
+import ecs.entities.*;
 import ecs.systems.*;
 import ecs.tools.Flags.Flag;
-import ecs.entities.Bag;
-import ecs.entities.Boss;
-import ecs.entities.Cake;
-import ecs.entities.Chort;
-import ecs.entities.DamageTrap;
-import ecs.entities.DarkKnight;
-import ecs.entities.Imp;
-import ecs.entities.Monster;
-import ecs.entities.MonsterPotion;
-import ecs.entities.QuestButton;
-import ecs.entities.SpeedPotion;
-import ecs.entities.SummoningTrap;
-import ecs.entities.TeleportationTrap;
 import graphic.hud.*;
 import saving.GameData;
 import saving.Saves;
@@ -250,6 +236,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         saves.setAutoSave(Optional.of(data));
         saves.save();
         gameLogger.info("Level: " + level);
+        new Shop();
     }
 
     private void manageEntitiesSets() {
