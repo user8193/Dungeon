@@ -1,18 +1,27 @@
 package graphic.hud;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.utils.Align;
 import controller.ScreenController;
+import ecs.entities.Boss;
+import ecs.entities.Entity;
+import starter.Game;
 import tools.Constants;
 import tools.Point;
 
 public class InputMenu <T extends Actor> extends ScreenController<T> {
-    private static ScreenInput screenInput;
+    private static final String path = "animation/command.png";
+    private static ScreenInput screenInput = new ScreenInput("Please enter here", new Point(0, 0));
+
     public static String input;
-    private final String path = "animation/command.png";
+    private static ScreenImage screenImage = new ScreenImage(path, new Point(0, 0));;
+    private T outputText;
+    private boolean boss = false;
 
     /**
      * Creates a Screencontroller with a ScalingViewport which stretches the ScreenElements on
@@ -30,41 +39,34 @@ public class InputMenu <T extends Actor> extends ScreenController<T> {
      */
     public InputMenu(SpriteBatch spriteBatch) {
         super(spriteBatch);
-        ScreenImage screenImage = new ScreenImage(path, new Point(0, 0));
+        createOutput("");
         add((T) screenImage);
-
-        ScreenButton screenButtonRestart = new ScreenButton(
-            "Enter",
-            new Point(0, 50),
-            new TextButtonListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    save();
-                }
-            },
-            new TextButtonStyleBuilder(FontBuilder.DEFAULT_FONT)
-                .setFontColor(Color.RED)
-                .setDownFontColor(Color.BLUE)
-                .setOverFontColor(Color.YELLOW)
-                .build());
-        screenButtonRestart.setPosition(
-            2 * (Constants.WINDOW_WIDTH) / 3f - screenButtonRestart.getWidth(),
-            (Constants.WINDOW_HEIGHT) / 2.5f + screenButtonRestart.getHeight(),
-            Align.center | Align.bottom);
-        add((T) screenButtonRestart);
-
-        screenInput = new ScreenInput("Please enter here", new Point(0, 0));
         add((T) screenInput);
-
         hideMenu();
     }
 
-    public static String result() {
+    public String result() {
         return input;
     }
 
-    private void save() {
+    public void save() {
         input = screenInput.getText();
+    }
+
+    public void createOutput(String output){
+        ScreenText screenText = new ScreenText(
+            output,
+            new Point(0, 30),
+            3,
+            new LabelStyleBuilder(FontBuilder.DEFAULT_FONT)
+                .setFontcolor(Color.GREEN)
+                .build());
+        add((T) screenText);
+        outputText = (T) screenText;
+    }
+
+    public void removeOutputText(){
+        this.remove(outputText);
     }
 
     /**
@@ -79,5 +81,53 @@ public class InputMenu <T extends Actor> extends ScreenController<T> {
      */
     public void hideMenu() {
         this.forEach((Actor s) -> s.setVisible(false));
+    }
+
+    public void input(){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            save();
+        }
+        if (result() != null) {
+            boss();
+            shop();
+        }
+    }
+
+    private void boss(){
+        if (result().matches(".*Boss.*")) {
+            removeOutputText();
+            for (int x = 0; x < Game.getEntities().toArray().length; x++){
+                if(Game.getEntities().toArray()[x] instanceof Boss){
+                    createOutput("The Boss will despawn if you tell the LevelNumber!");
+                    boss = true;
+                }
+            }
+        } else if (boss && result().matches("" + Game.getLevel())) {
+            for (int x = 0; x < Game.getEntities().toArray().length; x++){
+                if(Game.getEntities().toArray()[x] instanceof Boss){
+                    Game.removeEntity((Entity) Game.getEntities().toArray()[x]);
+                    boss = false;
+                }
+            }
+            removeOutputText();
+            createOutput("Boss despawned");
+        }
+    }
+
+
+    private void shop(){
+        if (result().matches(".*Shop.*")) {
+            removeOutputText();
+
+        } else if (boss && result().matches("" + Game.getLevel())) {
+            for (int x = 0; x < Game.getEntities().toArray().length; x++){
+                if(Game.getEntities().toArray()[x] instanceof Boss){
+                    Game.removeEntity((Entity) Game.getEntities().toArray()[x]);
+                    boss = false;
+                }
+            }
+            removeOutputText();
+            createOutput("Boss despawned");
+        }
     }
 }
