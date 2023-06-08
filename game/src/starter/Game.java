@@ -82,6 +82,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
 
     private boolean doSetup = true;
     private static boolean paused = false;
+    private static boolean isInInputMenu = false;
 
     /** All entities that are currently active in the dungeon */
     private static final Set<Entity> entities = new HashSet<>();
@@ -226,7 +227,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         manageEntitiesSets();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P))
-            togglePause();
+            toggleInput();
         // "K" the Suicide Button (You'll probably want to press it)
         if (Gdx.input.isKeyJustPressed(Input.Keys.K))
             ((HealthComponent) hero.getComponent(HealthComponent.class).get())
@@ -313,8 +314,19 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
     }
 
-    public static void toggleInput(){
-
+    public static void toggleInput() {
+        isInInputMenu = !isInInputMenu;
+        if (systems != null) {
+            systems.forEach(ECS_System::toggleRun);
+        }
+        if (inputMenu != null) {
+            if (isInInputMenu) {
+                inputMenu.showMenu();
+            }
+            else {
+                inputMenu.hideMenu();
+            }
+        }
     }
 
     /** Toggle between questLog and run */
