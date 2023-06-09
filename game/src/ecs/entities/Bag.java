@@ -126,4 +126,11 @@ public class Bag extends Item {
                             invComp.removeItem(which);
                         });
     }
+
+    public ItemData getItemData() {
+        return this.getComponent(ItemComponent.class)
+            .map(ItemComponent.class::cast)
+            .get()
+            .getItemData();
+    }
 }

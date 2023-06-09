@@ -10,9 +10,14 @@ import com.badlogic.gdx.utils.Align;
 import controller.ScreenController;
 import ecs.entities.Boss;
 import ecs.entities.Entity;
+import ecs.entities.Item;
+import ecs.entities.Shop;
+import ecs.items.ItemData;
 import starter.Game;
 import tools.Constants;
 import tools.Point;
+
+import java.util.List;
 
 public class InputMenu <T extends Actor> extends ScreenController<T> {
     private static final String path = "animation/command.png";
@@ -84,12 +89,9 @@ public class InputMenu <T extends Actor> extends ScreenController<T> {
     }
 
     public void input(){
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            save();
-        }
+        save();
         if (result() != null) {
             boss();
-            shop();
         }
     }
 
@@ -102,23 +104,6 @@ public class InputMenu <T extends Actor> extends ScreenController<T> {
                     boss = true;
                 }
             }
-        } else if (boss && result().matches("" + Game.getLevel())) {
-            for (int x = 0; x < Game.getEntities().toArray().length; x++){
-                if(Game.getEntities().toArray()[x] instanceof Boss){
-                    Game.removeEntity((Entity) Game.getEntities().toArray()[x]);
-                    boss = false;
-                }
-            }
-            removeOutputText();
-            createOutput("Boss despawned");
-        }
-    }
-
-
-    private void shop(){
-        if (result().matches(".*Shop.*")) {
-            removeOutputText();
-
         } else if (boss && result().matches("" + Game.getLevel())) {
             for (int x = 0; x < Game.getEntities().toArray().length; x++){
                 if(Game.getEntities().toArray()[x] instanceof Boss){

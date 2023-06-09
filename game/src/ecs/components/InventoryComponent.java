@@ -1,6 +1,7 @@
 package ecs.components;
 
 import com.badlogic.gdx.Gdx;
+import configuration.ItemConfig;
 import configuration.KeyboardConfig;
 import ecs.components.ai.AITools;
 import ecs.entities.Entity;
@@ -85,7 +86,7 @@ public class InventoryComponent extends Component {
     public boolean useItem(int inventoryNumber) {
         if(this.isOpen) {
             this.isOpen = false;
-            if (inventory.size() <= inventoryNumber)
+            if (inventory.size() <= inventoryNumber || inventory.get(0) == null)
                 return false;
             ItemData itemData = inventory.get(inventoryNumber);
             itemData.triggerUse(entity);
@@ -102,12 +103,30 @@ public class InventoryComponent extends Component {
      * Removes the first Item of the inventory.
      */
     public void removeFirstItem() {
-        if (inventory.size() <= 0)
+        if (inventory == null || inventory.get(0) == null) {
             return;
-        if(this.isOpen) {
+        }
+        else if(this.isOpen) {
             this.isOpen = false;
             ItemData itemData = inventory.get(0);
             itemData.triggerDrop(entity, AITools.getRandomAccessibleTileCoordinateInRange(position(entity), 2f).toPoint());
+        }
+    }
+
+    public void removeItemAndItemInBag(ItemData itemData){
+        for(int x = 0; x < inventory.size(); x++){
+            if(inventory.get(x).equals(itemData)){
+                inventory.set(x, null);
+                return;
+            }
+            else if(inventory.get(x).getItemName().matches(ItemConfig.BAG_NAME.get())){
+                for(int y = 0; y < inventory.get(x).getInventory().size(); y++){
+                    if(inventory.get(x).equals(itemData)){
+                        inventory.set(x, null);
+                        return;
+                    }
+                }
+            }
         }
     }
 

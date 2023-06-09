@@ -94,6 +94,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     public static QuestLogMenu<Actor> questLogMenu;
     public static int questDisplayTime = 0;
     private static boolean inQuestLog = false;
+    private Shop shop;
 
     public static void main(String[] args) {
         // start the game
@@ -211,10 +212,6 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
         if (Gdx.input.isKeyJustPressed(Input.Keys.P))
             toggleInput();
-        // "K" the Suicide Button (You'll probably want to press it)
-        if (Gdx.input.isKeyJustPressed(Input.Keys.K))
-            ((HealthComponent) hero.getComponent(HealthComponent.class).get())
-                    .receiveHit(new Damage(100, DamageType.PHYSICAL, hero));
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             throw new Flag();
         if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
@@ -222,6 +219,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         }
         if(isInInputMenu) {
             inputMenu.input();
+            shop.shopping();
         }
     }
 
@@ -236,7 +234,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         saves.setAutoSave(Optional.of(data));
         saves.save();
         gameLogger.info("Level: " + level);
-        new Shop();
+        shop = new Shop();
     }
 
     private void manageEntitiesSets() {

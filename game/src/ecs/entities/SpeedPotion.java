@@ -171,4 +171,10 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         vc.setYVelocity(vc.getYVelocity() * 2);
     }
 
+    public ItemData getItemData() {
+        return this.getComponent(ItemComponent.class)
+            .map(ItemComponent.class::cast)
+            .get()
+            .getItemData();
+    }
 }
