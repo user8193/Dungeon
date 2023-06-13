@@ -81,18 +81,29 @@ public class Shop extends Entity{
                             }
                             inventoryPrice.set(x, random);
                             inputMenu.removeOutputText();
-                            inputMenu.createOutput("You want to pay less. I will make you a new offer. Ever you want to get an Item cheaper, the price will be more likely to be higher.\n New Price: " + inventoryPrice.get(x));
+                            inputMenu.createOutput("You want to pay less. I will make you a new offer.\nEver you want to get an Item cheaper, the price will be more likely to be higher.\n New Price: " + inventoryPrice.get(x));
                             break;
                         }
                         else{
                             if(inventoryNumber.get(x) > 0 && Game.getHero().isPresent() && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
-                                switch (inventoryItem.get(x)) {
-                                    case "Cake" -> new Cake();
-                                    case "Bag" -> new Bag();
-                                    case "Speed" -> new SpeedPotion();
-                                    case "Monster" -> new MonsterPotion();
+                                if(Game.getHero().get().getComponent(WalletComponent.class).isPresent()){
+                                    WalletComponent wc = (WalletComponent) Game.getHero().get().getComponent(WalletComponent.class).get();
+                                    int coins = wc.getCoins();
+                                    if(coins > inventoryPrice.get(x)) {
+                                        wc.removeCoins(inventoryPrice.get(x));
+                                        switch (inventoryItem.get(x)) {
+                                            case "Cake" -> new Cake();
+                                            case "Bag" -> new Bag();
+                                            case "Speed" -> new SpeedPotion();
+                                            case "Monster" -> new MonsterPotion();
+                                        }
+                                        inventoryNumber.set(x, inventoryNumber.get(x) - 1);
+                                    }
+                                    else{
+                                        inputMenu.removeOutputText();
+                                        inputMenu.createOutput("You need to find more Coins");
+                                    }
                                 }
-                                inventoryNumber.set(x, inventoryNumber.get(x)-1);
                             }
                         }
                     } else if (inputMenu.result().matches(".*sell\\s" + inventoryItem.get(x) + ".*\\d") && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
@@ -112,15 +123,19 @@ public class Shop extends Entity{
                                 else {
                                     InventoryComponent ic = (InventoryComponent) Game.getHero().get().getComponent(InventoryComponent.class).get();
                                     List<ItemData> items = ic.getItems();
-                                    if(items == null || items.get(0) == null){
+                                    if(items == null || items.size() == 0){
                                         return;
                                     }
                                     else {
-                                        switch (inventoryItem.get(x)) {
-                                            case "Cake" -> sellItem(items, ic, ItemConfig.KUCHEN_NAME.get());
-                                            case "Bag" -> sellItem(items, ic, ItemConfig.BAG_NAME.get());
-                                            case "Speed" -> sellItem(items, ic, ItemConfig.SPEED_NAME.get());
-                                            case "Monster" -> sellItem(items, ic, ItemConfig.MONSTER_DESPAWN_NAME.get());
+                                        if(Game.getHero().get().getComponent(WalletComponent.class).isPresent()) {
+                                            WalletComponent wc = (WalletComponent) Game.getHero().get().getComponent(WalletComponent.class).get();
+                                            wc.addCoin(inventoryPrice.get(x));
+                                            switch (inventoryItem.get(x)) {
+                                                case "Cake" -> sellItem(items, ic, ItemConfig.KUCHEN_NAME.get());
+                                                case "Bag" -> sellItem(items, ic, ItemConfig.BAG_NAME.get());
+                                                case "Speed" -> sellItem(items, ic, ItemConfig.SPEED_NAME.get());
+                                                case "Monster" -> sellItem(items, ic, ItemConfig.MONSTER_DESPAWN_NAME.get());
+                                            }
                                         }
                                     }
                                 }

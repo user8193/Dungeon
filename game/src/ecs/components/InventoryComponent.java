@@ -103,7 +103,7 @@ public class InventoryComponent extends Component {
      * Removes the first Item of the inventory.
      */
     public void removeFirstItem() {
-        if (inventory == null || inventory.get(0) == null) {
+        if (inventory == null || inventory.size() == 0) {
             return;
         }
         else if(this.isOpen) {
@@ -116,13 +116,13 @@ public class InventoryComponent extends Component {
     public void removeItemAndItemInBag(ItemData itemData){
         for(int x = 0; x < inventory.size(); x++){
             if(inventory.get(x).equals(itemData)){
-                inventory.set(x, null);
+                inventory.remove(x);
                 return;
             }
             else if(inventory.get(x).getItemName().matches(ItemConfig.BAG_NAME.get())){
                 for(int y = 0; y < inventory.get(x).getInventory().size(); y++){
-                    if(inventory.get(x).equals(itemData)){
-                        inventory.set(x, null);
+                    if(inventory.get(x).getInventory().get(x).equals(itemData)){
+                        inventory.get(x).getInventory().remove(x);
                         return;
                     }
                 }

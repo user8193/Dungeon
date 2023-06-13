@@ -235,6 +235,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         saves.save();
         gameLogger.info("Level: " + level);
         shop = new Shop();
+
     }
 
     private void manageEntitiesSets() {
@@ -448,6 +449,7 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
     // spawns both monsters and taps accordingly to the size of the floor
     private void levelSetup() {
         spawnItems();
+        spawnCoins();
         for (int i = 0; i < (level * currentLevel.getFloorTiles().size()) / 100; i++) {
             spawnMonster();
         }
@@ -469,6 +471,13 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
             addEntity(new DarkKnight(level));
         else
             addEntity(new Boss(level));
+    }
+
+    public void spawnCoins(){
+        int random = (int) (Math.random() * 11);
+        for(int x = 0; x < random; x++){
+            addEntity(new Coin());
+        }
     }
 
     // Trap spawn mechanics

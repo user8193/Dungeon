@@ -3,7 +3,6 @@ package ecs.entities;
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
 import ecs.components.skill.*;
-import ecs.damage.Damage;
 import ecs.components.skill.ExplosivePebbleSkill;
 import graphic.Animation;
 import ecs.components.OnDeathFunctions.EndGame;
@@ -12,7 +11,6 @@ import ecs.components.quests.QuestComponent;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Optional;
 
 /**
  * The Hero is the player character. It's entity in the ECS. This class helps to
@@ -51,6 +49,7 @@ public class Hero extends Entity implements Serializable {
         setupHealthComponent(maxHealth, currentHealth);
         PlayableComponent pc = new PlayableComponent(this);
         setupSkillComponent();
+        setupWalletComponent();
         pc.setSkillSlot1(firstSkill);
         pc.setSkillSlot2(secondSkill);
         setupQuestComponent(questLog);
@@ -61,6 +60,10 @@ public class Hero extends Entity implements Serializable {
         Animation moveRight = AnimationBuilder.buildAnimation(pathToRunRight);
         Animation moveLeft = AnimationBuilder.buildAnimation(pathToRunLeft);
         new VelocityComponent(this, xSpeed, ySpeed, moveLeft, moveRight);
+    }
+
+    private void setupWalletComponent() {
+        new WalletComponent(this);
     }
 
     private void setupAnimationComponent() {
