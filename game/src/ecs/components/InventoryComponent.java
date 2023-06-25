@@ -113,6 +113,10 @@ public class InventoryComponent extends Component {
         }
     }
 
+    /**
+     * removes an ItemDate object
+     * @param itemData will be removed
+     */
     public void removeItemAndItemInBag(ItemData itemData){
         for(int x = 0; x < inventory.size(); x++){
             if(inventory.get(x).equals(itemData)){

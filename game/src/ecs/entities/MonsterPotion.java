@@ -33,6 +33,15 @@ public class MonsterPotion extends Item {
         monsterPotionLogger.info("MonsterPotion created");
     }
 
+    public MonsterPotion(Point point) {
+        super();
+        setupItemComponent();
+        setupHitBoxComponent();
+        new PositionComponent(this, point);
+        setupAnimationComponent();
+        monsterPotionLogger.info("MonsterPotion created");
+    }
+
     /**
      * This constructor creates a MonsterPotion with the given itemData and point.
      * @param itemData The itemData of the MonsterPotion.

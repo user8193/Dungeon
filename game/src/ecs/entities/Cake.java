@@ -32,6 +32,14 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         setupAnimationComponent();
         cakeLogger.info("Cake created");
     }
+    public Cake(Point point) {
+        super();
+        setupItemComponent();
+        setupHitBoxComponent();
+        new PositionComponent(this, point);
+        setupAnimationComponent();
+        cakeLogger.info("Cake created");
+    }
 
     /**
      * This constructor creates a Cake with the given itemData and point.

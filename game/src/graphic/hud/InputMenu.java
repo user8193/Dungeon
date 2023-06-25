@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.utils.Align;
 import controller.ScreenController;
+import ecs.components.WalletComponent;
 import ecs.entities.Boss;
 import ecs.entities.Entity;
 import ecs.entities.Item;
@@ -18,14 +19,22 @@ import tools.Constants;
 import tools.Point;
 
 import java.util.List;
+import java.util.logging.Logger;
 
+/**
+ * let you make inputs
+ * <p>
+ * with inputs, you can interact with the Game
+ */
 public class InputMenu <T extends Actor> extends ScreenController<T> {
+    private transient final Logger inputLogger = Logger.getLogger(this.getClass().getName());
     private static final String path = "animation/command.png";
     private static ScreenInput screenInput = new ScreenInput("Please enter here", new Point(0, 0));
 
-    public static String input;
+    private static String input = "";
     private static ScreenImage screenImage = new ScreenImage(path, new Point(0, 0));;
     private T outputText;
+    private T coins;
     private boolean boss = false;
 
     /**
@@ -50,14 +59,18 @@ public class InputMenu <T extends Actor> extends ScreenController<T> {
         hideMenu();
     }
 
+    /**
+     * Returns the input
+     * @return is a String, wih the input
+     */
     public String result() {
         return input;
     }
 
-    public void save() {
-        input = screenInput.getText();
-    }
-
+    /**
+     * Creates output
+     * @param output the String you want to print
+     */
     public void createOutput(String output){
         ScreenText screenText = new ScreenText(
             output,
@@ -68,10 +81,15 @@ public class InputMenu <T extends Actor> extends ScreenController<T> {
                 .build());
         add((T) screenText);
         outputText = (T) screenText;
+        inputLogger.info("Text was printed");
     }
 
+    /**
+     * Removes the last output
+     */
     public void removeOutputText(){
         this.remove(outputText);
+        inputLogger.info("InputMenu is open");
     }
 
     /**
@@ -79,6 +97,7 @@ public class InputMenu <T extends Actor> extends ScreenController<T> {
      */
     public void showMenu() {
         this.forEach((Actor s) -> s.setVisible(true));
+        inputLogger.info("InputMenu is closed");
     }
 
     /**
@@ -88,15 +107,38 @@ public class InputMenu <T extends Actor> extends ScreenController<T> {
         this.forEach((Actor s) -> s.setVisible(false));
     }
 
+    /**
+     * saves the input
+     */
     public void input(){
-        save();
+        input = screenInput.getText();
+        showCoins();
         if (result() != null) {
             boss();
         }
     }
 
+    private void showCoins(){
+        if(Game.getHero().isPresent()) {
+            if (Game.getHero().get().getComponent(WalletComponent.class).isPresent()) {
+                if(coins != null){
+                    this.remove(this.coins);
+                }
+                WalletComponent wc = (WalletComponent) Game.getHero().get().getComponent(WalletComponent.class).get();
+                ScreenText screenText = new ScreenText(
+                    wc.getCoins() + " Coins",
+                    new Point(200, 0),
+                    3,
+                    new LabelStyleBuilder(FontBuilder.DEFAULT_FONT)
+                        .setFontcolor(Color.GREEN)
+                        .build());
+                add((T) screenText);
+                coins = (T) screenText;
+            }
+        }
+    }
     private void boss(){
-        if (result().matches(".*Boss.*")) {
+        if (result().matches(".*Boss.*") && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             removeOutputText();
             for (int x = 0; x < Game.getEntities().toArray().length; x++){
                 if(Game.getEntities().toArray()[x] instanceof Boss){
@@ -104,7 +146,7 @@ public class InputMenu <T extends Actor> extends ScreenController<T> {
                     boss = true;
                 }
             }
-        } else if (boss && result().matches("" + Game.getLevel())) {
+        } else if (boss && result().matches("" + Game.getLevel()) && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             for (int x = 0; x < Game.getEntities().toArray().length; x++){
                 if(Game.getEntities().toArray()[x] instanceof Boss){
                     Game.removeEntity((Entity) Game.getEntities().toArray()[x]);

@@ -210,13 +210,10 @@ public class Game extends ScreenAdapter implements IOnLevelLoader {
         setCameraFocus();
         manageEntitiesSets();
         getHero().ifPresent(this::loadNextLevelIfEntityIsOnEndTile);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P))
+        if (Gdx.input.isKeyJustPressed(Input.Keys.TAB))
             toggleInput();
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             throw new Flag();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-            toggleQuestLog();
-        }
         if(isInInputMenu) {
             inputMenu.input();
             shop.shopping();

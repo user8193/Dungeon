@@ -8,15 +8,26 @@ import starter.Game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
+/**
+ * Coin is an entity, you can collect
+ * <p>
+ * With coins, you can buy items.
+ */
 public class Coin extends Entity{
+    private transient final Logger coinLogger = Logger.getLogger(this.getClass().getName());
     private final String path = "animation/coin.png";
 
+    /**
+     * Creates one Coin
+     */
     public Coin(){
         super();
         setupAnimationComponent();
         setupPositionComponent();
         setupHitBoxComponent();
+        coinLogger.info(this.getClass().getName() + " was spawned");
     }
 
     private void setupAnimationComponent(){
@@ -41,7 +52,6 @@ public class Coin extends Entity{
         else{
             if(entity.equals(Game.getHero().get())){
                 setIntoWallet(entity);
-                Game.removeEntity(this);
             }
         }
     }
@@ -50,6 +60,8 @@ public class Coin extends Entity{
         if(entity.getComponent(WalletComponent.class).isPresent()){
             WalletComponent wc = (WalletComponent) entity.getComponent(WalletComponent.class).get();
             wc.addCoin(1);
+            coinLogger.info(this.getClass().getName() + " was collected");
+            Game.removeEntity(this);
         }
     }
 }

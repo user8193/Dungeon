@@ -14,8 +14,15 @@ import tools.Point;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
+/**
+ * Shop is an entity, were you can buy and cell items
+ * <p>
+ * Shop only works when the entity is nearby.
+ */
 public class Shop extends Entity{
+    private transient final Logger shopLogger = Logger.getLogger(this.getClass().getName());
     private List<String> inventoryItem = new ArrayList<>(4);
     private List<Integer> inventoryPrice = new ArrayList<>(4);
     private List<Integer> inventoryNumber = new ArrayList<>(4);
@@ -25,6 +32,9 @@ public class Shop extends Entity{
     private int newBuyValueManipulator = 0;
     private int newSellValueManipulator = 2;
 
+    /**
+     * Creates a Shop
+     */
     public Shop(){
         super();
 
@@ -42,6 +52,7 @@ public class Shop extends Entity{
 
         setupAnimationComponent();
         setupPositionComponent();
+        shopLogger.info(this.getClass().getName() + " was created");
     }
 
     private void setupAnimationComponent(){
@@ -52,7 +63,15 @@ public class Shop extends Entity{
         new PositionComponent(this);
     }
 
+    /**
+     * let the shop run.
+     * <p>
+     * the input will be checked with Regex
+     */
     public void shopping(){
+        if(!AITools.playerInRange(this, 2)){
+            return;
+        }
         if(inputMenu == null){
             inputMenu = Game.inputMenu;
         }
@@ -81,7 +100,7 @@ public class Shop extends Entity{
                             }
                             inventoryPrice.set(x, random);
                             inputMenu.removeOutputText();
-                            inputMenu.createOutput("You want to pay less. I will make you a new offer.\nEver you want to get an Item cheaper, the price will be more likely to be higher.\n New Price: " + inventoryPrice.get(x));
+                            inputMenu.createOutput("You want to pay less. I will make you a new offer.\nEvery time you want to get an Item cheaper, the price will be more likely to be higher.\n New Price: " + inventoryPrice.get(x));
                             break;
                         }
                         else{
@@ -89,14 +108,17 @@ public class Shop extends Entity{
                                 if(Game.getHero().get().getComponent(WalletComponent.class).isPresent()){
                                     WalletComponent wc = (WalletComponent) Game.getHero().get().getComponent(WalletComponent.class).get();
                                     int coins = wc.getCoins();
-                                    if(coins > inventoryPrice.get(x)) {
+                                    if(coins >= inventoryPrice.get(x)) {
                                         wc.removeCoins(inventoryPrice.get(x));
+                                        PositionComponent p  = (PositionComponent) Game.getHero().get().getComponent(PositionComponent.class).get();
+                                        Point point = p.getPosition();
                                         switch (inventoryItem.get(x)) {
-                                            case "Cake" -> new Cake();
-                                            case "Bag" -> new Bag();
-                                            case "Speed" -> new SpeedPotion();
-                                            case "Monster" -> new MonsterPotion();
+                                            case "Cake" -> new Cake(AITools.getRandomAccessibleTileCoordinateInRange(point, 2).toPoint());
+                                            case "Bag" -> new Bag(AITools.getRandomAccessibleTileCoordinateInRange(point, 2).toPoint());
+                                            case "Speed" -> new SpeedPotion(AITools.getRandomAccessibleTileCoordinateInRange(point, 2).toPoint());
+                                            case "Monster" -> new MonsterPotion(AITools.getRandomAccessibleTileCoordinateInRange(point, 2).toPoint());
                                         }
+                                        shopLogger.info(inventoryItem.get(x) + " was dropped in the Dungeon");
                                         inventoryNumber.set(x, inventoryNumber.get(x) - 1);
                                     }
                                     else{
@@ -112,7 +134,7 @@ public class Shop extends Entity{
                         if (value > inventoryPrice.get(x) - newSellValueManipulator) {
                             newSellValueManipulator = 1;
                             inputMenu.removeOutputText();
-                            inputMenu.createOutput("There will be only one Offer now: " + (inventoryPrice.get(x)-1));
+                            inputMenu.createOutput("There will be only one Offer now: " + (inventoryPrice.get(x)-newSellValueManipulator));
                             break;
                         }
                         else {
@@ -120,23 +142,19 @@ public class Shop extends Entity{
                                 if (Game.getHero().get().getComponent(InventoryComponent.class).isEmpty()) {
                                     return;
                                 }
-                                else {
-                                    InventoryComponent ic = (InventoryComponent) Game.getHero().get().getComponent(InventoryComponent.class).get();
-                                    List<ItemData> items = ic.getItems();
-                                    if(items == null || items.size() == 0){
-                                        return;
-                                    }
-                                    else {
-                                        if(Game.getHero().get().getComponent(WalletComponent.class).isPresent()) {
-                                            WalletComponent wc = (WalletComponent) Game.getHero().get().getComponent(WalletComponent.class).get();
-                                            wc.addCoin(inventoryPrice.get(x));
-                                            switch (inventoryItem.get(x)) {
-                                                case "Cake" -> sellItem(items, ic, ItemConfig.KUCHEN_NAME.get());
-                                                case "Bag" -> sellItem(items, ic, ItemConfig.BAG_NAME.get());
-                                                case "Speed" -> sellItem(items, ic, ItemConfig.SPEED_NAME.get());
-                                                case "Monster" -> sellItem(items, ic, ItemConfig.MONSTER_DESPAWN_NAME.get());
-                                            }
-                                        }
+                                InventoryComponent ic = (InventoryComponent) Game.getHero().get().getComponent(InventoryComponent.class).get();
+                                List<ItemData> items = ic.getItems();
+                                if(items == null || items.size() == 0) {
+                                    return;
+                                }
+                                if(Game.getHero().get().getComponent(WalletComponent.class).isPresent()) {
+                                    WalletComponent wc = (WalletComponent) Game.getHero().get().getComponent(WalletComponent.class).get();
+                                    wc.addCoin(inventoryPrice.get(x)-newSellValueManipulator);
+                                    switch (inventoryItem.get(x)) {
+                                        case "Cake" -> sellItem(items, ic, ItemConfig.KUCHEN_NAME.get());
+                                        case "Bag" -> sellItem(items, ic, ItemConfig.BAG_NAME.get());
+                                        case "Speed" -> sellItem(items, ic, ItemConfig.SPEED_NAME.get());
+                                        case "Monster" -> sellItem(items, ic, ItemConfig.MONSTER_DESPAWN_NAME.get());
                                     }
                                 }
                             }
@@ -151,12 +169,14 @@ public class Shop extends Entity{
         for(int x = 0; x < items.size(); x++){
             if(items.get(x).getItemName().matches(name)){
                 ic.removeItemAndItemInBag(items.get(x));
+                shopLogger.info(items.get(x).getItemName() + " was removed from your inventory");
                 break;
             }
             else if(items.get(x).getItemName().matches(ItemConfig.BAG_NAME.get())){
                 for(int y = 0; y < items.get(x).getInventory().size(); y++){
                     if(items.get(x).getItemName().matches(name)){
                         ic.removeItemAndItemInBag(items.get(x));
+                        shopLogger.info(items.get(x).getItemName() + " was removed from your inventory");
                         break;
                     }
                 }

@@ -32,6 +32,15 @@ public class Bag extends Item {
         bagLogger.info("Bag created");
     }
 
+    public Bag(Point point) {
+        super();
+        setupItemComponent();
+        setupHitBoxComponent();
+        new PositionComponent(this, point);
+        setupAnimationComponent();
+        bagLogger.info("Bag created");
+    }
+
     /**
      * This constructor creates a Bag with the given itemData and point.
      * @param itemData The itemData of the Bag.
