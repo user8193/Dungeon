@@ -31,7 +31,10 @@ public class Bag extends Item {
         setupAnimationComponent();
         bagLogger.info("Bag created");
     }
-
+    /**
+     * creates a Bag with the given and point.
+     * @param point The point of the Bag.
+     */
     public Bag(Point point) {
         super();
         setupItemComponent();

@@ -32,6 +32,10 @@ public class Cake extends Item implements IOnUse, IOnCollect, IOnDrop {
         setupAnimationComponent();
         cakeLogger.info("Cake created");
     }
+    /**
+     * creates a Cake with the given and point.
+     * @param point The point of the Cake.
+     */
     public Cake(Point point) {
         super();
         setupItemComponent();

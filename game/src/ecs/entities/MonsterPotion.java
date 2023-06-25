@@ -33,6 +33,10 @@ public class MonsterPotion extends Item {
         monsterPotionLogger.info("MonsterPotion created");
     }
 
+    /**
+     * creates a MonsterPotion with the given and point.
+     * @param point The point of the MonsterPotion.
+     */
     public MonsterPotion(Point point) {
         super();
         setupItemComponent();

@@ -34,6 +34,10 @@ public class SpeedPotion extends Item implements IOnUse, IOnDrop, IOnCollect {
         setupAnimationComponent();
         speedPotionLogger.info("SpeedPotion created");
     }
+    /**
+     * creates a SpeedPotion with the given and point.
+     * @param point The point of the SpeedPotion.
+     */
     public SpeedPotion(Point point) {
         super();
         setupItemComponent();
