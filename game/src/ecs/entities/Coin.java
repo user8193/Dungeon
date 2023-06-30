@@ -2,7 +2,6 @@ package ecs.entities;
 
 import dslToGame.AnimationBuilder;
 import ecs.components.*;
-import ecs.items.ItemData;
 import graphic.hud.InputMenu;
 import starter.Game;
 
